@@ -48,8 +48,8 @@ int main(int ac,char **av)
     GR_WINDOW_ID w;
     GR_GC_ID gc;
     GR_EVENT event;
-    //int current_screen = 0; // ajout
-    int button_action = 0;
+    int current_screen = 0; // ajout
+    //int button_action = 0;
     pthread_t th_boutons, th_capteurs, th_tendances;
 
     if (GrOpen() < 0)
@@ -79,16 +79,15 @@ int main(int ac,char **av)
       
       while(button_pressed){
 	printf("--------------Une autre boucle\n");
-	button_pressed = 0;
+	
         switch (g_etat_boutons)
         {
           case BUTTON_01:       
 	    
-	    
 	    GrGetNextEventTimeout(&event, 1000);
 	    printf("---- Button 1\n");
             GrClearWindow(w, 0);
-	    
+	    button_pressed = 0;
             switchScreen(w,gc,&current_screen);
             break;
 
@@ -109,11 +108,12 @@ int main(int ac,char **av)
 	    button_pressed = 0;
 	    
             GrGetNextEventTimeout(&event, 1000);
+
 	    printf("----Button 3\n");
 	    printf("curr screen = %d\n",current_screen);
             if(current_screen==0){
 	      printf("----Screen 1 -- next format temp\n");
-	      current_format_temp = next(current_format_temp, FORMAT_TEMP_KELVIN);
+	      //current_format_temp = next(current_format_temp, FORMAT_TEMP_KELVIN);
             }else{
 	      //changer l'unité du capteur en cours
             }
@@ -123,15 +123,15 @@ int main(int ac,char **av)
 	    button_pressed = 0;
 	    
             GrGetNextEventTimeout(&event, 3000);
-            switch (event.type)
-            {
-              case GR_EVENT_TYPE_EXPOSURE:
+            /*switch (event.type)
+            {*/
+              //case GR_EVENT_TYPE_EXPOSURE:
                 //affichage_menu_04(w, gc);
-                break;
+                //break;
               /*case GR_EVENT_TYPE_TIMEOUT:
                 g_fin_programme = 1;
                 break;*/
-            }
+		//}
             break;
         }
       }
