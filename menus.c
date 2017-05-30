@@ -13,31 +13,47 @@ extern volatile int current_orientation = 0;
 int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p, int orientation){
 
   char sT[64], sP[64], sRH[64];
+
+  get_Temp(sT,p);
+  get_Pressure(sP,p);
+  sprintf(sRH, "%.1f %%\n",  p->RH);
   
-    if(orientation == 0){
-
-      get_Temp(sT,p);
-      get_Pressure(sP,p);
-      sprintf(sRH, "%.1f %%\n",  p->RH);
-
-      GrText(w, gc, 20, 30, "Temps reel",  -1, GR_TFASCII);
-      GrText(w, gc, 35, 80,  sT,  -1, GR_TFASCII);
-      GrText(w, gc, 35, 110, sP,  -1, GR_TFASCII);
-      GrText(w, gc, 35, 140, sRH, -1, GR_TFASCII);
-    }else if(orientation == 1) {
-      //tourne d'un tour
-    }else{
-      //encore un
-    }
+  if(orientation == 0){ //original
+    GrText(w, gc, 20, 30, "Temps reel",  -1, GR_TFASCII);
+    GrText(w, gc, 35, 80,  sT,  -1, GR_TFASCII);
+    GrText(w, gc, 35, 110, sP,  -1, GR_TFASCII);
+    GrText(w, gc, 35, 140, sRH, -1, GR_TFASCII);
+  }else if(orientation == 1) {
+    //tourne d'un tour par ex:
+    
+    GrText(w, gc, 20, 30, "Temps reel",  -1, GR_TFASCII);
+    GrText(w, gc, 35, 140,  sT,  -1, GR_TFASCII);
+    GrText(w, gc, 35, 80, sP,  -1, GR_TFASCII);
+    GrText(w, gc, 35, 110, sRH, -1, GR_TFASCII);
+  }else{
+    //encore un
+    GrText(w, gc, 20, 30, "Temps reel",  -1, GR_TFASCII);
+    GrText(w, gc, 35, 110,  sT,  -1, GR_TFASCII);
+    GrText(w, gc, 35, 140, sP,  -1, GR_TFASCII);
+    GrText(w, gc, 35, 80, sRH, -1, GR_TFASCII);
+  }
    
     
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 
 } // affichage_menu_01
 
-int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p)
-{
-    char sT[64], sP[64], sRH[64];
+
+/**
+ * Affichage de l'historique de la semaine
+ */
+int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[],int nbArchives){
+
+  int i;
+  for(i=0; i<nbArchives; i++){
+    printf("Tendances : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
+  }
+  /*char sT[64], sP[64], sRH[64];
 
     sprintf(sT,  "T = %.2f C\n",   p->T);
     sprintf(sP,  "P = %.2f hPa\n", p->P);
@@ -48,13 +64,17 @@ int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p)
     GrText(w, gc, 35, 110, sP,  -1, GR_TFASCII);
     GrText(w, gc, 35, 140, sRH, -1, GR_TFASCII);
     
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS;*/
 
 } // affichage_menu_02
 
-int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_tendances p)
+int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[], int nbArchives)
 {
-    GrText(w, gc, 20, 30, "Tendances", -1, GR_TFASCII);
+  int i;
+  for(i=0; i<nbArchives; i++){
+    printf("Tendances : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
+  }
+  /*GrText(w, gc, 20, 30, "Tendances", -1, GR_TFASCII);
 
     GrText(w, gc, 35, 80,  "T =", -1, GR_TFASCII);
     GrText(w, gc, 35, 110, "P =", -1, GR_TFASCII);
@@ -73,7 +93,7 @@ int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_tendances p)
     else
         GrDrawImageFromFile(w, gc, 60, 120, 30, 30, IMG_DOWN, 0);
 
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;*/
 
 } // affichage_menu_03
 

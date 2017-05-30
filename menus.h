@@ -54,24 +54,26 @@ extern int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_dat
 
 /**
  * @brief    Affichage des moyennes des donnees des capteurs.
- * @param w  ID de la fenetre.
- * @param gc ID de la configuration graphique.
- * @param p  Pointeur sur les moyennes des donnees des capteurs.
+ * @param w            ID de la fenetre.
+ * @param gc           ID de la configuration graphique.
+ * @param data         tableau de toutes les données historiques des capteurs de la semaine
+ * @param nbArchives   nb de données historiques
  * @return   EXIT_SUCCESS ou EXIT_FAILURE
  */
-extern int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p);
+extern int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[],int nbArchives);
 
 /**
- * @brief    Affichage des tendances des donnees des capteurs.
- * @param w  ID de la fenetre.
- * @param gc ID de la configuration graphique.
- * @param p  Pointeur sur les tendances des donnees des capteurs.
+ * @brief    Affichage des moyennes des donnees des capteurs.
+ * @param w            ID de la fenetre.
+ * @param gc           ID de la configuration graphique.
+ * @param data         tableau de toutes les données historiques des capteurs de la semaine
+ * @param nbArchives   nb de données tendances
  * @return   EXIT_SUCCESS ou EXIT_FAILURE
  */
-extern int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_tendances p);
+extern int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[], int nbArchives);
 
 
-void get_Pressure(char * data, t_ptr_captors_data p);
+void get_Pressure(char data[64], t_ptr_captors_data p);
 void get_Temp(char data[64], t_ptr_captors_data p);
 
 int next(int current, int max);

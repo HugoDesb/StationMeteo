@@ -74,7 +74,6 @@ typedef struct s_tendances
                     OS  R1  R0  F1  F0  POL  TM  S
                avec :
                     - OS : OS/ALERT
-                    - R1/R0 : Converter resolution
                     - F1/F0 : Fault queue mode
                     - POL : Polarity mode
                     - TM : Thermostat mode
