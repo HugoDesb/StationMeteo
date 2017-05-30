@@ -1,11 +1,11 @@
 /**
- * @file     threads.c
- *
- * @author   GOURDON Arnaud
- *           PREVOST Theophile
- *
- * @brief    Modules contenant differents threads.
- */
+* @file     threads.c
+*
+* @author   GOURDON Arnaud
+*           PREVOST Theophile
+*
+* @brief    Modules contenant differents threads.
+*/
 
 #include "buttons.h"
 #include "threads.h"
@@ -41,7 +41,7 @@ void archiver_donnees_capteurs(void)
   if (g_nb_archives_heure < NB_MAX_ARCHIVES_HEURE){
     g_nb_archives_heure++;
   }
-    
+
 
   // if g_archives_donnees_heure is full, the hour is done
   if(g_id_archive == 0 ){
@@ -67,17 +67,15 @@ void archiver_donnees_capteurs(void)
     }else{
       //shift all items to the right
       for(i=g_nb_archives_semaine-1;i>=0;i--){
-	//if at the end of the array, do nothing and lose this data
-	if(!(g_nb_archives_semaine>=NB_MAX_ARCHIVES_SEMAINE-1)){
-	  g_archives_donnees_week[i+1] = g_archives_donnees_week[i];
-	}
+        //if at the end of the array, do nothing and lose this data
+        if(!(g_nb_archives_semaine>=NB_MAX_ARCHIVES_SEMAINE-1)){
+          g_archives_donnees_week[i+1] = g_archives_donnees_week[i];
+        }
       }
       //store
       g_archives_donnees_week[0] = g_donnees_capteurs_AVG;
     }
 
-    
-    
     //reset
     if(g_nb_archives_semaine<NB_MAX_ARCHIVES_SEMAINE){
       g_nb_archives_semaine++;
@@ -85,94 +83,89 @@ void archiver_donnees_capteurs(void)
     g_nb_archives_heure = 0;
 
   }
-    
-  
+
+
 } // archiver_donnees_capteurs
 
 void calculer_moyennes(void)
 {
-    int i;
+  int i;
 
-    g_donnees_moyennes_capteurs.T = 0;
-    g_donnees_moyennes_capteurs.P = 0;
-    g_donnees_moyennes_capteurs.RH = 0;
+  g_donnees_moyennes_capteurs.T = 0;
+  g_donnees_moyennes_capteurs.P = 0;
+  g_donnees_moyennes_capteurs.RH = 0;
 
-    for (i = 0; i < g_nb_archives_heure; ++i)
-    {
-        g_donnees_moyennes_capteurs.T  += g_archives_donnees_heure[i].T;
-        g_donnees_moyennes_capteurs.P  += g_archives_donnees_heure[i].P;
-        g_donnees_moyennes_capteurs.RH += g_archives_donnees_heure[i].RH;
-    }
+  for (i = 0; i < g_nb_archives_heure; ++i)
+  {
+    g_donnees_moyennes_capteurs.T  += g_archives_donnees_heure[i].T;
+    g_donnees_moyennes_capteurs.P  += g_archives_donnees_heure[i].P;
+    g_donnees_moyennes_capteurs.RH += g_archives_donnees_heure[i].RH;
+  }
 
-    g_donnees_moyennes_capteurs.T /= g_nb_archives_heure;
-    g_donnees_moyennes_capteurs.P /= g_nb_archives_heure;
-    g_donnees_moyennes_capteurs.RH /= g_nb_archives_heure;
+  g_donnees_moyennes_capteurs.T /= g_nb_archives_heure;
+  g_donnees_moyennes_capteurs.P /= g_nb_archives_heure;
+  g_donnees_moyennes_capteurs.RH /= g_nb_archives_heure;
 
 } // calculer_moyennes
 
-void * verifier_etat_boutons(void * arg)
+void * verifier_etat_boutons(int * arg)
 {
-    KEYBOARD_STATUS KbStatus;
+  KEYBOARD_STATUS KbStatus;
 
-    while (!g_fin_programme)
-    {
-        KbStatus = keyboard_status();
+  while (!g_fin_programme)
+  {
+    KbStatus = keyboard_status();
 
-        if((KbStatus & BUTTON_01) == BUTTON_01) 
-        {
-            g_etat_boutons = BUTTON_01;
-            button_pressed=1;
-            //while(keyboard_status() == KbStatus);
-        }
-        else if((KbStatus & BUTTON_02) == BUTTON_02) 
-        {
-            g_etat_boutons = BUTTON_02;
-            button_pressed=1;
-            //while(keyboard_status() == KbStatus);
-        }
-        else if((KbStatus & BUTTON_03) == BUTTON_03) 
-        {
-            g_etat_boutons = BUTTON_03;
-            button_pressed=1;
-            //while(keyboard_status() == KbStatus);
-        }
-        else if((KbStatus & BUTTON_04)== BUTTON_04) 
-        {
-            g_etat_boutons = BUTTON_04;
-            button_pressed=1;
-            //while(keyboard_status() == KbStatus);
-        }
-
-        usleep(10000); 
+    if((KbStatus & BUTTON_01) == BUTTON_01){
+      g_etat_boutons = BUTTON_01;
+      *arg = BUTTON_01;
+      while(keyboard_status() == KbStatus);
+    }
+    else if((KbStatus & BUTTON_02) == BUTTON_02){
+      g_etat_boutons = BUTTON_02;
+      *arg = BUTTON_02;
+      while(keyboard_status() == KbStatus);
+    }
+    else if((KbStatus & BUTTON_03) == BUTTON_03){
+      g_etat_boutons = BUTTON_03;
+      *arg = BUTTON_03;
+      while(keyboard_status() == KbStatus);
+    }
+    else if((KbStatus & BUTTON_04)== BUTTON_04){
+      g_etat_boutons = BUTTON_04;
+      *arg = BUTTON_04;
+      while(keyboard_status() == KbStatus);
     }
 
-} // verifier_etat_boutons
+    usleep(10000);
+  }
+}
 
 void * maj_donnees_capteurs(void * arg)
 {
-    int i, r;
-    
-    for (i = 0; i < NB_MAX_ARCHIVES_HEURE; ++i)
-    {
-        g_archives_donnees_heure[i].T  = 0;
-        g_archives_donnees_heure[i].P  = 0;
-        g_archives_donnees_heure[i].RH = 0;
-    }
+  int i, r;
 
-    while (!g_fin_programme)
+  for (i = 0; i < NB_MAX_ARCHIVES_HEURE; ++i)
+  {
+    g_archives_donnees_heure[i].T  = 0;
+    g_archives_donnees_heure[i].P  = 0;
+    g_archives_donnees_heure[i].RH = 0;
+  }
+
+  while (!g_fin_programme)
+  {
+    r = lire_donnees_capteurs(&g_donnees_capteurs);
+    if (r == EXIT_SUCCESS)
     {
-        r = lire_donnees_capteurs(&g_donnees_capteurs);
-        if (r == EXIT_SUCCESS)
-        {
-            archiver_donnees_capteurs();
-            calculer_moyennes();
-            sleep(INTERVAL_MAJ);
-        }
-        else
-        {
-            g_fin_programme = 1;
-        }
+      archiver_donnees_capteurs();
+      calculer_moyennes();
+      sleep(INTERVAL_MAJ);
     }
+    else
+    {
+      g_fin_programme = 1;
+    }
+  }
 
 } // maj_donnees_capteurs
 
@@ -180,38 +173,37 @@ void * maj_tendances(void * arg)
 {
   int i;
   t_captors_data g_tendance;
-    while (!g_fin_programme)
-    {
-        sleep(INTERVAL_TENDANCES);
-	
-	g_nb_archives_tendances = 0;
-	for(i=1; i<g_nb_archives_semaine;i++){
-	  g_tendance.T = g_archives_donnees_week[i].T - g_archives_donnees_week[i-1].T;
-	  g_tendance.RH = g_archives_donnees_week[i].RH - g_archives_donnees_week[i-1].RH;
-	  g_tendance.P = g_archives_donnees_week[i].P - g_archives_donnees_week[i-1].P;
-	  g_archives_tendances[i-1] = g_tendance;
-	  g_nb_archives_tendances++;
-	}
-	
-	/*
-        if (g_donnees_capteurs.T > g_dernieres_mesures_tendances.T)
-            g_tendances.T = 1;
-        else
-            g_tendances.T = -1;
+  while (!g_fin_programme)
+  {
+    sleep(INTERVAL_TENDANCES);
 
-        if (g_donnees_capteurs.P > g_dernieres_mesures_tendances.P)
-            g_tendances.P = 1;
-        else
-            g_tendances.P = -1;
-
-        if (g_donnees_capteurs.RH > g_dernieres_mesures_tendances.RH)
-            g_tendances.RH = 1;
-        else
-            g_tendances.RH = -1;
-
-        g_dernieres_mesures_tendances = g_donnees_capteurs;
-	*/
+    g_nb_archives_tendances = 0;
+    for(i=1; i<g_nb_archives_semaine;i++){
+      g_tendance.T = g_archives_donnees_week[i-1].T - g_archives_donnees_week[i].T;
+      g_tendance.RH = g_archives_donnees_week[i-1].RH - g_archives_donnees_week[i].RH;
+      g_tendance.P = g_archives_donnees_week[i-1].P - g_archives_donnees_week[i].P;
+      g_archives_tendances[i-1] = g_tendance;
+      g_nb_archives_tendances++;
     }
 
-} // maj_tendances
+    /*
+    if (g_donnees_capteurs.T > g_dernieres_mesures_tendances.T)
+    g_tendances.T = 1;
+    else
+    g_tendances.T = -1;
 
+    if (g_donnees_capteurs.P > g_dernieres_mesures_tendances.P)
+    g_tendances.P = 1;
+    else
+    g_tendances.P = -1;
+
+    if (g_donnees_capteurs.RH > g_dernieres_mesures_tendances.RH)
+    g_tendances.RH = 1;
+    else
+    g_tendances.RH = -1;
+
+    g_dernieres_mesures_tendances = g_donnees_capteurs;
+    */
+  }
+
+} // maj_tendances

@@ -10,6 +10,7 @@
 #define KEYBOARD_STATUS     unsigned int
 
 // Flag des differents boutons
+#define BUTTON_NONE         0x00
 #define BUTTON_01           0x01
 #define BUTTON_02           0x02
 #define BUTTON_03           0x04
@@ -24,4 +25,3 @@ extern KEYBOARD_STATUS keyboard_status(void);
 
 
 #endif /* __BUTTONS_H__ */
-

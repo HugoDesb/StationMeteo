@@ -44,13 +44,14 @@ extern t_captors_data g_archives_tendances[NB_MAX_ARCHIVES_HEURE-1];    //
 extern int g_nb_archives_semaine;   //
 extern int g_nb_archives_tendances; //
 
+
 /**
  * @brief     Thread qui verifie l'etat des boutons poussoirs.
  *            Met a jour la variable globale "g_etat_boutons".
- * @param arg Parametres du thread (rien).
+ * @param arg .
  * @return    Resultat du thread (rien).
  */
-extern void * verifier_etat_boutons(void * arg);
+extern void * verifier_etat_boutons(int * arg);
 
 /**
  * @brief     Thread qui recupere les donnees des capteurs.
@@ -71,4 +72,3 @@ extern void * maj_tendances(void * arg);
 
 
 #endif /* __THREADS_H__ */
-

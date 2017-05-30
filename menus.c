@@ -3,45 +3,51 @@
 #include "menus.h"
 
 
-extern volatile int current_screen = 0;
+//extern volatile int current_screen = 0;
+extern volatile int current_orientation = 0;
 extern volatile int current_data = 0;
 extern volatile int current_format_temp = 0;
 extern volatile int current_format_pressure = 0;
-extern volatile int current_orientation = 0;
 
 
-int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p, int orientation){
+int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p){
 
   char sT[64], sP[64], sRH[64];
+
+  GrFillRect(w,gc,0,0,160,4);
+  GrFillRect(w,gc,0,4,4,240);
+  GrFillRect(w,gc,0,236,160,4);
+  GrFillRect(w,gc,156,4,4,240);
+  GrFillRect(w,gc,0,40,160,2);
+  GrFillRect(w,gc,80,40,2,200);
+  GrFillRect(w,gc,80,140,80,2);
+  GrText(w, gc, 50, 30, "Donnees", -1, GR_TFASCII);
+
+
 
   get_Temp(sT,p);
   get_Pressure(sP,p);
   sprintf(sRH, "%.1f %%\n",  p->RH);
-  
-  if(orientation == 0){ //original
-    GrText(w, gc, 20, 30, "Temps reel",  -1, GR_TFASCII);
-    GrText(w, gc, 35, 80,  sT,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 110, sP,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 140, sRH, -1, GR_TFASCII);
-  }else if(orientation == 1) {
-    //tourne d'un tour par ex:
-    
-    GrText(w, gc, 20, 30, "Temps reel",  -1, GR_TFASCII);
-    GrText(w, gc, 35, 140,  sT,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 80, sP,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 110, sRH, -1, GR_TFASCII);
+
+  if(current_orientation == 0){ //original
+    GrText(w, gc, 15, 145,  sT,  -1, GR_TFASCII);
+    GrText(w, gc, 90, 100, sP,  -1, GR_TFASCII);
+    GrText(w, gc, 90, 190, sRH, -1, GR_TFASCII);
+  }else if(current_orientation == 1) {
+    //tourne d'un tour.
+    GrText(w, gc, 15, 145,  sRH,  -1, GR_TFASCII);
+    GrText(w, gc, 90, 100, sT,  -1, GR_TFASCII);
+    GrText(w, gc, 90, 190, sP, -1, GR_TFASCII);
   }else{
     //encore un
-    GrText(w, gc, 20, 30, "Temps reel",  -1, GR_TFASCII);
-    GrText(w, gc, 35, 110,  sT,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 140, sP,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 80, sRH, -1, GR_TFASCII);
+    GrText(w, gc, 15, 145,  sP,  -1, GR_TFASCII);
+    GrText(w, gc, 90, 100, sRH,  -1, GR_TFASCII);
+    GrText(w, gc, 90, 190, sT, -1, GR_TFASCII);
   }
-   
-    
+
   return EXIT_SUCCESS;
 
-} // affichage_menu_01
+}
 
 
 /**
@@ -50,9 +56,16 @@ int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p, in
 int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[],int nbArchives){
 
   int i;
-  for(i=0; i<nbArchives; i++){
-    printf("Tendances : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
+  char msg[64];
+  printf("--------------------------------------------");
+  if(nbArchives > 0){
+    for(i=0; i<nbArchives; i++){
+      printf("Historique : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
+    }
+  }else{
+    GrText(w, gc, 10, 30, "Pas de donnees !\n",  -1, GR_TFASCII);
   }
+
   /*char sT[64], sP[64], sRH[64];
 
     sprintf(sT,  "T = %.2f C\n",   p->T);
@@ -63,23 +76,29 @@ int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[],int nbA
     GrText(w, gc, 35, 80,  sT,  -1, GR_TFASCII);
     GrText(w, gc, 35, 110, sP,  -1, GR_TFASCII);
     GrText(w, gc, 35, 140, sRH, -1, GR_TFASCII);
-    
+
     return EXIT_SUCCESS;*/
 
-} // affichage_menu_02
+}
 
-int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[], int nbArchives)
-{
+int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[], int nbArchives){
   int i;
-  for(i=0; i<nbArchives; i++){
-    printf("Tendances : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
+  char msg[64];
+  printf("--------------------------------------------");
+  if(nbArchives > 0){
+    for(i=0; i<nbArchives; i++){
+      printf("Tendances : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
+    }
+  }else{
+    GrText(w, gc, 10, 30, "Pas de donnees !\n",  -1, GR_TFASCII);
   }
+
   /*GrText(w, gc, 20, 30, "Tendances", -1, GR_TFASCII);
 
     GrText(w, gc, 35, 80,  "T =", -1, GR_TFASCII);
     GrText(w, gc, 35, 110, "P =", -1, GR_TFASCII);
     GrText(w, gc, 35, 140, "H =", -1, GR_TFASCII);
-    
+
     if (p->T > 0)
         GrDrawImageFromFile(w, gc, 60, 60, 30, 30, IMG_UP, 0);
     else
@@ -103,13 +122,14 @@ void get_Pressure(char data[64], t_ptr_captors_data p){
   if(current_format_pressure == FORMAT_PRESSURE_BAR){
     val *= 0.001;
     sprintf(t, "%.1f bar\n",val);
-    
+
   }else{
     sprintf(t, "%.1f hPa\n",val);
   }
   for(i = 0;i<64;i++){
     data[i] = t[i];
   }
+
 }
 
 void get_Temp(char data[64], t_ptr_captors_data p){
@@ -126,10 +146,11 @@ void get_Temp(char data[64], t_ptr_captors_data p){
     val = val + 273.15;
     sprintf(t, "%.1f K\n",val);
   }
-  
+
   for(i = 0;i<64;i++){
     data[i] = t[i];
   }
+
 }
 
 
@@ -140,5 +161,3 @@ int next(int current, int max){
     return current + 1;
   }
 }
-
-

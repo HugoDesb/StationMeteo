@@ -34,8 +34,10 @@
 #define FORMAT_PRESSURE_BAR     1
 
 
+
 // Variables globales
-extern volatile int current_screen; //0, 1, 2
+//extern volatile int current_screen; //0, 1, 2
+extern volatile int current_orientation;
 extern volatile int current_data; // t= 0, p = 1, h = 2
 extern volatile int current_format_temp; //0, 1, 2
 extern volatile int current_format_pressure; //0, 1
@@ -50,7 +52,7 @@ extern volatile int current_orientation;
  * @param p  Pointeur sur les donnees des capteurs.
  * @return   EXIT_SUCCESS ou EXIT_FAILURE
  */
-extern int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p, int orientation);
+extern int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p);
 
 /**
  * @brief    Affichage des moyennes des donnees des capteurs.
@@ -79,4 +81,3 @@ void get_Temp(char data[64], t_ptr_captors_data p);
 int next(int current, int max);
 
 #endif /* __MENUS_H__ */
-
