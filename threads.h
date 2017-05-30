@@ -16,17 +16,17 @@
 
 // Directives de configuration
 #ifndef DUREE_VIE_ARCHIVES
-    #define DUREE_VIE_ARCHIVES  3600        // 1h
+    #define DUREE_VIE_ARCHIVES  10        // 1h
 #endif
 #ifndef INTERVAL_MAJ
-    #define INTERVAL_MAJ        10          // 10s
+    #define INTERVAL_MAJ        1          // 10s
 #endif
 #ifndef INTERVAL_TENDANCES
     #define INTERVAL_TENDANCES  20          // 20s
 #endif
 
-#define NB_MAX_ARCHIVES_HEURE     (DUREE_VIE_ARCHIVES / INTERVAL_MAJ)
-#define NB_MAX_ARCHIVES_SEMAINE 168
+#define NB_MAX_ARCHIVES_HEURE      10  //(DUREE_VIE_ARCHIVES / INTERVAL_MAJ)
+#define NB_MAX_ARCHIVES_SEMAINE    168
 
 
 // Variables globales

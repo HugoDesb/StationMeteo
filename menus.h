@@ -34,6 +34,13 @@
 #define FORMAT_PRESSURE_BAR     1
 
 
+#define ABCISSE_BOUT 140
+#define ABCISSE_ORIGINE 10
+#define ORDONNE_BOUT 40
+#define ORDONNE_ORIGINE 220
+
+
+
 
 // Variables globales
 //extern volatile int current_screen; //0, 1, 2

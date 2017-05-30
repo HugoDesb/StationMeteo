@@ -53,68 +53,364 @@ int affichage_current_data(GR_WINDOW_ID w, GR_GC_ID gc, t_ptr_captors_data p){
 /**
  * Affichage de l'historique de la semaine
  */
-int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[],int nbArchives){
+int affichage_menu_02(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data [],int nbArchives){
 
-  int i;
-  char msg[64];
-  printf("--------------------------------------------");
-  if(nbArchives > 0){
-    for(i=0; i<nbArchives; i++){
-      printf("Historique : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
-    }
-  }else{
-    GrText(w, gc, 10, 30, "Pas de donnees !\n",  -1, GR_TFASCII);
+  char title[64], minC[64], maxC[64];
+  int i,height;
+  double val, ecartMinMax, ecartMinVal;
+  double min, max;
+  GrFillRect(w,gc,0,0,160,4);
+  GrFillRect(w,gc,0,4,4,240);
+  GrFillRect(w,gc,0,236,160,4);
+  GrFillRect(w,gc,156,4,4,240);
+  GrFillRect(w,gc,0,40,160,2);
+  /*GrFillRect(w,gc,10, 70, 2,130);
+  //absscisse temp
+  GrFillRect(w,gc,10, 200, 120,2);*/
+
+
+  switch(current_data){
+    // CASE ---------------------------------------------------TEMP
+    case DATA_TEMP:
+
+      // Calcul du min et du max
+      min = data[0].T;
+      max = data[0].T;
+      for(i = 1; i<nbArchives && i<120; i++){
+        if(data[i].T < min){
+          min = data[i].T;
+        }
+        if(data[i].T > max){
+          max = data[i].T;
+        }
+        printf("TEMP[%d]=%0.1f\n",i,data[i].T);
+      }
+
+      if(min!=max){
+        //dessine les axes
+        GrFillRect(w,gc,10, 70, 2,130);
+        GrFillRect(w,gc,10, 200, 120,2);
+
+        //dessine les points de la courbe
+        for(i = 0; i<nbArchives && i<120; i++){
+          val = data[i].T;
+          ecartMinMax = max - min;
+          ecartMinVal = val - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrPoint(w,gc,(120-i)+10, height);
+        }
+
+
+        //convertit min et max, et le titre, selon l'unité
+        switch(current_format_temp){
+          case FORMAT_TEMP_CELSIUS :
+            GrText(w, gc, 50, 30, "Historique - C", -1, GR_TFASCII);
+            break;
+          case FORMAT_TEMP_FAHRENHEIT:
+            min = min*1.8+32;
+            max = max*1.8+32;
+            GrText(w, gc, 50, 30, "Historique - F", -1, GR_TFASCII);
+            break;
+          case FORMAT_TEMP_KELVIN :
+            min = min+273.15;
+            max = max+273.15;
+            GrText(w, gc, 50, 30, "Historique - K", -1, GR_TFASCII);
+            break;
+        }
+        //ecrit min et max
+        sprintf(minC, "%.1f\n",  min);
+        sprintf(maxC, "%.1f\n",  max);
+        GrText(w, gc, 10, 220, minC, -1, GR_TFASCII);
+        GrText(w, gc, 10, 60, maxC, -1, GR_TFASCII);
+
+      }else{
+        GrText(w, gc, 30, 30, "Historique - Temp", -1, GR_TFASCII);
+        GrText(w, gc, 50, 90, "Donnees", -1, GR_TFASCII);
+        GrText(w, gc, 45, 120, "monotones !", -1, GR_TFASCII);
+      }
+    break;
+
+    // CASE ---------------------------------------------------PRESSURE
+    case DATA_PRESSURE:
+      // Calcul du min et du max
+      min = data[0].P;
+      max = data[0].P;
+      for(i = 1; i<nbArchives && i<120; i++){
+        if(data[i].P < min){
+          min = data[i].P;
+        }
+        if(data[i].P > max){
+          max = data[i].P;
+        }
+      }
+
+      if(min!=max){
+        //dessine les axes
+        GrFillRect(w,gc,10, 70, 2,130);
+        GrFillRect(w,gc,10, 200, 120,2);
+
+        //dessine les points de la courbe
+        for(i = 0; i<nbArchives && i<120; i++){
+          val = data[i].P;
+          ecartMinMax = max - min;
+          ecartMinVal = val - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrPoint(w,gc,(120-i)+10, height);
+        }
+
+
+        //convertit min et max, et le titre, selon l'unité
+        switch(current_format_pressure){
+          case FORMAT_PRESSURE_PASCAL :
+            GrText(w, gc, 50, 30, "Historique - hPa", -1, GR_TFASCII);
+            break;
+          case FORMAT_PRESSURE_BAR:
+            min = min*0.001;
+            max = max*0.001;
+            GrText(w, gc, 50, 30, "Historique - bar", -1, GR_TFASCII);
+            break;
+        }
+        //ecrit min et max
+        sprintf(minC, "%.1f\n",  min);
+        sprintf(maxC, "%.1f\n",  max);
+        GrText(w, gc, 10, 220, minC, -1, GR_TFASCII);
+        GrText(w, gc, 10, 60, maxC, -1, GR_TFASCII);
+
+      }else{
+        GrText(w, gc, 20, 30, "Historique - Pression", -1, GR_TFASCII);
+        GrText(w, gc, 50, 90, "Donnees", -1, GR_TFASCII);
+        GrText(w, gc, 45, 120, "monotones !", -1, GR_TFASCII);
+      }
+    break;
+
+    //-CASE --------------------------------------------------- HUMIDITY
+    case DATA_HUMIDITY:
+      // Calcul du min et du max
+      min = 0;
+      max = 100;
+
+      //dessine les axes
+      GrFillRect(w,gc,10, 70, 2,130);
+      GrFillRect(w,gc,10, 200, 120,2);
+
+      //dessine les points de la courbe
+      for(i = 0; i<nbArchives && i<120; i++){
+        val = data[i].RH;
+        ecartMinMax = max - min;
+        ecartMinVal = val - min;
+        height = 200 - ((ecartMinVal/ecartMinMax)*130);
+        GrPoint(w,gc,(120-i)+10, height);
+      }
+      //ecrit min et max
+      sprintf(minC, "%.1f\n",  min);
+      sprintf(maxC, "%.1f\n",  max);
+      GrText(w, gc, 10, 220, minC, -1, GR_TFASCII);
+      GrText(w, gc, 10, 60, maxC, -1, GR_TFASCII);
+      GrText(w, gc, 50, 30, "Historique - %", -1, GR_TFASCII);
+    break;
   }
-
-  /*char sT[64], sP[64], sRH[64];
-
-    sprintf(sT,  "T = %.2f C\n",   p->T);
-    sprintf(sP,  "P = %.2f hPa\n", p->P);
-    sprintf(sRH, "H = %.2f %%\n",  p->RH);
-
-    GrText(w, gc, 20, 30, "Moyennes",  -1, GR_TFASCII);
-    GrText(w, gc, 35, 80,  sT,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 110, sP,  -1, GR_TFASCII);
-    GrText(w, gc, 35, 140, sRH, -1, GR_TFASCII);
-
-    return EXIT_SUCCESS;*/
 
 }
 
 int affichage_menu_03(GR_WINDOW_ID w, GR_GC_ID gc, t_captors_data data[], int nbArchives){
-  int i;
-  char msg[64];
-  printf("--------------------------------------------");
-  if(nbArchives > 0){
-    for(i=0; i<nbArchives; i++){
-      printf("Tendances : T=%.0f | P=%0.f | H=%0.f\n", data[i].T, data[i].P, data[i].RH);
-    }
-  }else{
-    GrText(w, gc, 10, 30, "Pas de donnees !\n",  -1, GR_TFASCII);
+
+  char title[64], minC[64], maxC[64];
+  int i,height;
+  double val, ecartMinMax, ecartMinVal;
+  double min, max;
+  GrFillRect(w,gc,0,0,160,4);
+  GrFillRect(w,gc,0,4,4,240);
+  GrFillRect(w,gc,0,236,160,4);
+  GrFillRect(w,gc,156,4,4,240);
+  GrFillRect(w,gc,0,40,160,2);
+
+
+  switch(current_data){
+    // CASE ---------------------------------------------------TEMP
+    case DATA_TEMP:
+
+      // Calcul du min et du max
+      min = data[0].T;
+      max = data[0].T;
+      for(i = 1; i<nbArchives && i<120; i++){
+        if(data[i].T < min){
+          min = data[i].T;
+        }
+        if(data[i].T > max){
+          max = data[i].T;
+        }
+      }
+
+      if(min!=max){
+        //dessine les axes
+        GrFillRect(w,gc,10, 70, 2,130);
+        //dessine l'axe des abscisses
+        if(0<=min){
+          GrFillRect(w,gc,10, 200, 120,2);
+        }else if(max<=0){
+          GrFillRect(w,gc,10, 70, 120,2);
+        }else{
+          ecartMinMax = max - min;
+          ecartMinVal = 0 - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrFillRect(w,gc,10, height, 120,2);
+        }
+
+        //dessine les points de la courbe
+        for(i = 0; i<nbArchives && i<120; i++){
+          val = data[i].T;
+          ecartMinMax = max - min;
+          ecartMinVal = val - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrPoint(w,gc,(120-i)+10, height);
+        }
+
+
+        //convertit min et max, et le titre, selon l'unité
+        switch(current_format_temp){
+          case FORMAT_TEMP_CELSIUS :
+            GrText(w, gc, 50, 30, "Historique - C", -1, GR_TFASCII);
+            break;
+          case FORMAT_TEMP_FAHRENHEIT:
+            min = min*1.8+32;
+            max = max*1.8+32;
+            GrText(w, gc, 50, 30, "Historique - F", -1, GR_TFASCII);
+            break;
+          case FORMAT_TEMP_KELVIN :
+            min = min+273.15;
+            max = max+273.15;
+            GrText(w, gc, 50, 30, "Historique - K", -1, GR_TFASCII);
+            break;
+        }
+        //ecrit min et max
+        sprintf(minC, "%.2f\n",  min);
+        sprintf(maxC, "%.2f\n",  max);
+        GrText(w, gc, 10, 220, minC, -1, GR_TFASCII);
+        GrText(w, gc, 10, 60, maxC, -1, GR_TFASCII);
+
+      }else{
+        GrText(w, gc, 20, 30, "Historique - Temp", -1, GR_TFASCII);
+        GrText(w, gc, 50, 90, "Donnees", -1, GR_TFASCII);
+        GrText(w, gc, 45, 120, "monotones !", -1, GR_TFASCII);
+      }
+    break;
+
+    // CASE ---------------------------------------------------PRESSURE
+    case DATA_PRESSURE:
+      // Calcul du min et du max
+      min = data[0].P;
+      max = data[0].P;
+      for(i = 1; i<nbArchives && i<120; i++){
+        if(data[i].P < min){
+          min = data[i].P;
+        }
+        if(data[i].P > max){
+          max = data[i].P;
+        }
+      }
+
+      if(min!=max){
+        //dessine les axes
+        GrFillRect(w,gc,10, 70, 2,130);
+        //dessine l'axe des abscisses
+        if(0<=min){
+          GrFillRect(w,gc,10, 200, 120,2);
+        }else if(max<=0){
+          GrFillRect(w,gc,10, 70, 120,2);
+        }else{
+          ecartMinMax = max - min;
+          ecartMinVal = 0 - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrFillRect(w,gc,10, height, 120,2);
+        }
+
+        //dessine les points de la courbe
+        for(i = 0; i<nbArchives && i<120; i++){
+          val = data[i].P;
+          ecartMinMax = max - min;
+          ecartMinVal = val - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrPoint(w,gc,(120-i)+10, height);
+        }
+
+
+        //convertit min et max, et le titre, selon l'unité
+        switch(current_format_pressure){
+          case FORMAT_PRESSURE_PASCAL :
+            GrText(w, gc, 50, 30, "Historique - hPa", -1, GR_TFASCII);
+            break;
+          case FORMAT_PRESSURE_BAR:
+            min = min*0.001;
+            max = max*0.001;
+            GrText(w, gc, 50, 30, "Historique - bar", -1, GR_TFASCII);
+            break;
+        }
+        //ecrit min et max
+        sprintf(minC, "%.2f\n",  min);
+        sprintf(maxC, "%.2f\n",  max);
+        GrText(w, gc, 10, 220, minC, -1, GR_TFASCII);
+        GrText(w, gc, 10, 60, maxC, -1, GR_TFASCII);
+
+      }else{
+        GrText(w, gc, 10, 30, "Historique - Pression", -1, GR_TFASCII);
+        GrText(w, gc, 50, 90, "Donnees", -1, GR_TFASCII);
+        GrText(w, gc, 45, 120, "monotones !", -1, GR_TFASCII);
+      }
+    break;
+
+    //-CASE --------------------------------------------------- HUMIDITY
+    case DATA_HUMIDITY:
+      // Calcul du min et du max
+      min = data[0].RH;
+      max = data[0].RH;
+      for(i = 1; i<nbArchives && i<120; i++){
+        if(data[i].RH < min){
+          min = data[i].RH;
+        }
+        if(data[i].RH > max){
+          max = data[i].RH;
+        }
+      }
+
+      if(min!=max){
+        //dessine les axes
+        GrFillRect(w,gc,10, 70, 2,130);
+        //dessine l'axe des abscisses
+        if(0<=min){
+          GrFillRect(w,gc,10, 200, 120,2);
+        }else if(max<=0){
+          GrFillRect(w,gc,10, 70, 120,2);
+        }else{
+          ecartMinMax = max - min;
+          ecartMinVal = 0 - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrFillRect(w,gc,10, height, 120,2);
+        }
+
+        //dessine les points de la courbe
+        for(i = 0; i<nbArchives && i<120; i++){
+          val = data[i].RH;
+          ecartMinMax = max - min;
+          ecartMinVal = val - min;
+          height = 200 - ((ecartMinVal/ecartMinMax)*130);
+          GrPoint(w,gc,(120-i)+10, height);
+        }
+        //ecrit min et max
+        sprintf(minC, "%.2f\n",  min);
+        sprintf(maxC, "%.2f\n",  max);
+        GrText(w, gc, 10, 220, minC, -1, GR_TFASCII);
+        GrText(w, gc, 10, 60, maxC, -1, GR_TFASCII);
+        GrText(w, gc, 50, 30, "Historique - %", -1, GR_TFASCII);
+      }else{
+        GrText(w, gc, 10, 30, "Tendances - Humidite", -1, GR_TFASCII);
+        GrText(w, gc, 50, 90, "Donnees", -1, GR_TFASCII);
+        GrText(w, gc, 45, 120, "monotones !", -1, GR_TFASCII);
+      }
+
+    break;
   }
+}
 
-  /*GrText(w, gc, 20, 30, "Tendances", -1, GR_TFASCII);
-
-    GrText(w, gc, 35, 80,  "T =", -1, GR_TFASCII);
-    GrText(w, gc, 35, 110, "P =", -1, GR_TFASCII);
-    GrText(w, gc, 35, 140, "H =", -1, GR_TFASCII);
-
-    if (p->T > 0)
-        GrDrawImageFromFile(w, gc, 60, 60, 30, 30, IMG_UP, 0);
-    else
-        GrDrawImageFromFile(w, gc, 60, 60, 30, 30, IMG_DOWN, 0);
-    if (p->P > 0)
-        GrDrawImageFromFile(w, gc, 60, 90, 30, 30, IMG_UP, 0);
-    else
-        GrDrawImageFromFile(w, gc, 60, 90, 30, 30, IMG_DOWN, 0);
-    if (p->RH > 0)
-        GrDrawImageFromFile(w, gc, 60, 120, 30, 30, IMG_UP, 0);
-    else
-        GrDrawImageFromFile(w, gc, 60, 120, 30, 30, IMG_DOWN, 0);
-
-	return EXIT_SUCCESS;*/
-
-} // affichage_menu_03
 
 void get_Pressure(char data[64], t_ptr_captors_data p){
 
@@ -150,7 +446,6 @@ void get_Temp(char data[64], t_ptr_captors_data p){
   for(i = 0;i<64;i++){
     data[i] = t[i];
   }
-
 }
 
 

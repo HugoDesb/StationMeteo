@@ -25,7 +25,6 @@ t_captors_data g_archives_donnees_heure[NB_MAX_ARCHIVES_HEURE];  //
 t_captors_data g_archives_donnees_week[NB_MAX_ARCHIVES_SEMAINE]; //
 t_captors_data g_archives_tendances[NB_MAX_ARCHIVES_HEURE-1];    //
 static int g_id_archive = 0;
-static int g_nb_archives_heure = 0;     //~
 int g_nb_archives_semaine = 0;   //
 int g_nb_archives_tendances = 0; //
 
@@ -35,18 +34,26 @@ void archiver_donnees_capteurs(void)
   int i;
   double avgT=0, avgH=0, avgP=0;
   t_captors_data g_donnees_capteurs_AVG;
-  g_archives_donnees_heure[g_id_archive] = g_donnees_capteurs;
-  g_id_archive = (g_id_archive + 1) % NB_MAX_ARCHIVES_HEURE;
 
-  if (g_nb_archives_heure < NB_MAX_ARCHIVES_HEURE){
-    g_nb_archives_heure++;
-  }
+  g_archives_donnees_heure[g_id_archive] = g_donnees_capteurs;
+  printf("OH MY ---  01  --- T=%.0f | P=%0.f | H=%0.f\n",
+                                            g_donnees_capteurs.T,
+                                            g_donnees_capteurs.P,
+                                            g_donnees_capteurs.RH);
+  g_id_archive = (g_id_archive + 1) % NB_MAX_ARCHIVES_HEURE;
+  printf("g_id_archive = %d et NBMAX = %d\n",g_id_archive, NB_MAX_ARCHIVES_HEURE);
+
 
 
   // if g_archives_donnees_heure is full, the hour is done
   if(g_id_archive == 0 ){
+    printf("-------------------------------AVG  and g_id_archive = %d \n",g_id_archive);
     //avg hour
-    for(i = 0; i<NB_MAX_ARCHIVES_HEURE;i++){
+    avgH = g_archives_donnees_heure[0].RH;
+    avgT = g_archives_donnees_heure[0].T;
+    avgP = g_archives_donnees_heure[0].P;
+
+    for(i = 1; i<NB_MAX_ARCHIVES_HEURE;i++){
       avgH += g_archives_donnees_heure[i].RH;
       avgT += g_archives_donnees_heure[i].T;
       avgP += g_archives_donnees_heure[i].P;
@@ -56,9 +63,14 @@ void archiver_donnees_capteurs(void)
       g_archives_donnees_heure[i].P = 0;
       g_archives_donnees_heure[i].T = 0;
     }
-    g_donnees_capteurs_AVG.RH = avgH/g_nb_archives_heure;
-    g_donnees_capteurs_AVG.P = avgP/g_nb_archives_heure;
-    g_donnees_capteurs_AVG.T = avgT/g_nb_archives_heure;
+    g_donnees_capteurs_AVG.RH = avgH/((float)NB_MAX_ARCHIVES_HEURE);
+    g_donnees_capteurs_AVG.P = avgP/((float)NB_MAX_ARCHIVES_HEURE);
+    g_donnees_capteurs_AVG.T = avgT/((float)NB_MAX_ARCHIVES_HEURE);
+
+    printf("OH MY ---  01  -AVG-- T=%.0f | P=%0.f | H=%0.f\n",
+                                              g_donnees_capteurs_AVG.T,
+                                              g_donnees_capteurs_AVG.P,
+                                              g_donnees_capteurs_AVG.RH);
 
     //store in g_archives_donnes_week
     if(g_nb_archives_semaine==0){
@@ -80,33 +92,11 @@ void archiver_donnees_capteurs(void)
     if(g_nb_archives_semaine<NB_MAX_ARCHIVES_SEMAINE){
       g_nb_archives_semaine++;
     }
-    g_nb_archives_heure = 0;
 
   }
 
 
 } // archiver_donnees_capteurs
-
-void calculer_moyennes(void)
-{
-  int i;
-
-  g_donnees_moyennes_capteurs.T = 0;
-  g_donnees_moyennes_capteurs.P = 0;
-  g_donnees_moyennes_capteurs.RH = 0;
-
-  for (i = 0; i < g_nb_archives_heure; ++i)
-  {
-    g_donnees_moyennes_capteurs.T  += g_archives_donnees_heure[i].T;
-    g_donnees_moyennes_capteurs.P  += g_archives_donnees_heure[i].P;
-    g_donnees_moyennes_capteurs.RH += g_archives_donnees_heure[i].RH;
-  }
-
-  g_donnees_moyennes_capteurs.T /= g_nb_archives_heure;
-  g_donnees_moyennes_capteurs.P /= g_nb_archives_heure;
-  g_donnees_moyennes_capteurs.RH /= g_nb_archives_heure;
-
-} // calculer_moyennes
 
 void * verifier_etat_boutons(int * arg)
 {
@@ -145,12 +135,12 @@ void * maj_donnees_capteurs(void * arg)
 {
   int i, r;
 
-  for (i = 0; i < NB_MAX_ARCHIVES_HEURE; ++i)
+  /*for (i = 0; i < NB_MAX_ARCHIVES_HEURE; ++i)
   {
     g_archives_donnees_heure[i].T  = 0;
     g_archives_donnees_heure[i].P  = 0;
     g_archives_donnees_heure[i].RH = 0;
-  }
+  }*/
 
   while (!g_fin_programme)
   {
@@ -158,7 +148,7 @@ void * maj_donnees_capteurs(void * arg)
     if (r == EXIT_SUCCESS)
     {
       archiver_donnees_capteurs();
-      calculer_moyennes();
+      //calculer_moyennes();
       sleep(INTERVAL_MAJ);
     }
     else
@@ -185,25 +175,6 @@ void * maj_tendances(void * arg)
       g_archives_tendances[i-1] = g_tendance;
       g_nb_archives_tendances++;
     }
-
-    /*
-    if (g_donnees_capteurs.T > g_dernieres_mesures_tendances.T)
-    g_tendances.T = 1;
-    else
-    g_tendances.T = -1;
-
-    if (g_donnees_capteurs.P > g_dernieres_mesures_tendances.P)
-    g_tendances.P = 1;
-    else
-    g_tendances.P = -1;
-
-    if (g_donnees_capteurs.RH > g_dernieres_mesures_tendances.RH)
-    g_tendances.RH = 1;
-    else
-    g_tendances.RH = -1;
-
-    g_dernieres_mesures_tendances = g_donnees_capteurs;
-    */
   }
 
 } // maj_tendances
